@@ -1,10 +1,116 @@
 %!TEX root = ../main.tex
 \section{Task C}
 For realising the before mentioned business model we create the following dimensions:
-member, product, sale, date and time.
+member, product, date and time.
+The sale information from the database will be what binds the data together.
+
+To represent our data warehouse in a relational database, we choose to use a star schema.
+We do that since it will be easier for us later to create our cube in Mondrian.
+
+Below are the created dimentions and star schema is shown.
+
 
 %member - member.id
 %product - product.id, product.price
-%sale - sale.memeber_id, sale.product_id, sale.timestamp, sale.price 
+%sale - sale.member_id, sale.product_id, sale.timestamp, sale.price 
 %date - year, month, day 
 %time - hour, minute, seconds
+
+\subsection{Dimentions}
+
+\begin{figure}[H]
+\centering
+    \begin{minipage}[b]{0.4\textwidth}
+        \begin{tikzpicture}
+            \umlclass{T}{}{}
+            \umlclass[y=-3]{Year}{}{}
+            \umlclass[y=-6]{Month}{Season \\ Month in year \\ Days in month}{}
+            \umlclass[y=-10]{Day}{Day in month \\ Weekday \\ Holiday}{}
+            
+            \umlassoc[mult1=1..1, mult2=1..*]{T}{Year}
+            \umlassoc[mult1=1..1, mult2=12]{Year}{Month}
+            \umlassoc[mult1=1..1, mult2=28..31]{Month}{Day}
+        \end{tikzpicture}
+        \caption{Date dimension.}
+        \label{fig:uml_eks2}
+    \end{minipage}
+    \begin{minipage}[b]{0.4\textwidth}
+        \begin{tikzpicture}
+            \umlclass{T}{}{}
+            \umlclass[y=-3]{Hour}{}{}
+            \umlclass[y=-6]{Minut}{}{}
+            \umlclass[y=-9]{Second}{}{}
+            
+            \umlassoc[mult1=1..1, mult2=1..*]{T}{Hour}
+            \umlassoc[mult1=1..1, mult2=60]{Hour}{Minut}
+            \umlassoc[mult1=1..1, mult2=60]{Minut}{Second}
+        \end{tikzpicture}
+        \caption{Time dimension.}
+        \label{fig:uml_eks2}
+    \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \umlclass{T}{}{}
+        \umlclass[y=-3]{Price}{}{}
+        \umlclass[y=-6]{Product}{Name}{}
+        
+        \umlassoc[mult1=1..1, mult2=1..*]{T}{Price} %Tjek
+        \umlassoc[mult1=1..1, mult2=1..*]{Price}{Product}
+    \end{tikzpicture}
+    \caption{Product dimension.}
+    \label{fig:uml_eks2}
+\end{figure}
+
+\subsection{Star schema}
+Below can the star schema be seen.
+
+\begin{figure}[H]
+    \begin{tabular}{|l|l|l|l|}
+        \hline
+        memberid        & active    & year & balance    \\ \hline
+        1061            & 0         & 1996 & 650        \\ \hline
+        1060            & 0         & 1996 & 0          \\ \hline
+    \end{tabular}
+    \caption{Member dimension table.}
+    \label{fig:uml_eks2}
+
+    \begin{tabular}{|l|l|l|l|}
+        \hline
+        dayid       & year      & month & day   \\ \hline
+        1           & 2007      & 1     & 5     \\ \hline
+        2           & 2005      & 5     & 7     \\ \hline
+    \end{tabular}
+    \caption{Day dimension table.}
+    \label{fig:uml_eks2}
+
+    \begin{tabular}{|l|l|l|l|}
+        \hline
+        timeid      & hour      & minut     & second    \\ \hline
+        5           & 5         & 10        & 55        \\ \hline
+        9           & 9         & 45        & 8         \\ \hline
+    \end{tabular}
+    \caption{Time dimension table.}
+    \label{fig:uml_eks2}
+
+    \begin{tabular}{|l|l|l|l|l|}
+        \hline
+        productid   & name              & price     & active    & deactivation\_date     \\ \hline
+        5           & $^1/_2$L Kærnemælk      & 225       & 0         &                       \\ \hline
+        40          & Frisk luft v. BSS & 1         & 8         & 2007-12-24 20:00:01    \\ \hline
+    \end{tabular}
+    \caption{Product dimension table.}
+    \label{fig:uml_eks2}
+
+    \begin{tabular}{|l|l|l|l|}
+        \hline
+        memberid    & productid     & dayid     & timeid    \\ \hline
+        1061        & 5             & 1         & 5         \\ \hline
+        1060        & 40            & 2         & 9         \\ \hline
+    \end{tabular}
+    \caption{Sale fact table.}
+    \label{fig:uml_eks2}
+
+\end{figure}
