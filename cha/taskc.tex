@@ -1,13 +1,13 @@
 %!TEX root = ../main.tex
 \section{Task C}
-For realising the before mentioned business model we create the following dimensions:
+For realising the aforementioned business model we create the following dimensions:
 member, product, date and time.
-The sale information from the database will be what binds the data together.
+The sale information from the database will be what binds the data together in the sales fact table. 
 
 To represent our data warehouse in a relational database, we choose to use a star schema.
 We do that since it will be easier for us later to create our cube in Mondrian.
 
-Below are the created dimentions and star schema is shown.
+Below the created dimensions and star schema are shown.
 
 
 %member - member.id
@@ -16,10 +16,10 @@ Below are the created dimentions and star schema is shown.
 %date - year, month, day 
 %time - hour, minute, seconds
 
-\subsection{Dimentions}
+\subsection{Dimensions}
 
 \begin{figure}[H]
-\centering
+    \centering
     \begin{minipage}[b]{0.4\textwidth}
         \begin{tikzpicture}
             \umlclass{T}{}{}
@@ -32,7 +32,7 @@ Below are the created dimentions and star schema is shown.
             \umlassoc[mult1=1..1, mult2=28..31]{Month}{Day}
         \end{tikzpicture}
         \caption{Date dimension.}
-        \label{fig:uml_eks2}
+        \label{fig:date_dim}
     \end{minipage}
     \begin{minipage}[b]{0.4\textwidth}
         \begin{tikzpicture}
@@ -46,71 +46,87 @@ Below are the created dimentions and star schema is shown.
             \umlassoc[mult1=1..1, mult2=60]{Minut}{Second}
         \end{tikzpicture}
         \caption{Time dimension.}
-        \label{fig:uml_eks2}
+        \label{fig:time_dim}
     \end{minipage}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \begin{tikzpicture}
-        \umlclass{T}{}{}
-        \umlclass[y=-3]{Price}{}{}
-        \umlclass[y=-6]{Product}{Name}{}
-        
-        \umlassoc[mult1=1..1, mult2=1..*]{T}{Price} %Tjek
-        \umlassoc[mult1=1..1, mult2=1..*]{Price}{Product}
-    \end{tikzpicture}
-    \caption{Product dimension.}
-    \label{fig:uml_eks2}
+    \begin{minipage}[b]{0.4\textwidth}
+        \begin{tikzpicture}
+            \umlclass{T}{}{}
+            \umlclass[y=-3]{Price}{}{}
+            \umlclass[y=-6]{Product}{Name}{}
+            
+            \umlassoc[mult1=1..1, mult2=1..*]{T}{Price}
+            \umlassoc[mult1=1..1, mult2=1..*]{Price}{Product}
+        \end{tikzpicture}
+        \caption{Product dimension.}
+        \label{fig:product_dim}
+    \end{minipage}
+    \begin{minipage}[b]{0.4\textwidth}
+        \begin{tikzpicture}
+            \umlclass{T}{}{}
+            \umlclass[y=-3]{Year}{}{}
+            \umlclass[y=-6]{Member}{Balance \\ Active}{}
+            
+            \umlassoc[mult1=1..1, mult2=1..*]{T}{Year} %Tjek
+            \umlassoc[mult1=1..1, mult2=0..*]{Year}{Member}
+        \end{tikzpicture}
+        \caption{Member dimension.}
+        \label{fig:member_dim}
+    \end{minipage}
 \end{figure}
 
+
 \subsection{Star schema}
-Below can the star schema be seen.
+Below the star schema can be seen.
+The data content of the schemes is for display purpose. 
 
 \begin{figure}[H]
+    \centering
     \begin{tabular}{|l|l|l|l|}
         \hline
-        memberid        & active    & year & balance    \\ \hline
-        1061            & 0         & 1996 & 650        \\ \hline
-        1060            & 0         & 1996 & 0          \\ \hline
+        \underline{memberid}        & active    & year & balance    \\ \hline
+        1061                        & 0         & 1996 & 650        \\ \hline
+        1060                        & 0         & 1996 & 0          \\ \hline
     \end{tabular}
     \caption{Member dimension table.}
-    \label{fig:uml_eks2}
-
+    \label{fig:member_scheme}
+\vspace{0.5cm}
     \begin{tabular}{|l|l|l|l|}
         \hline
-        dayid       & year      & month & day   \\ \hline
-        1           & 2007      & 1     & 5     \\ \hline
-        2           & 2005      & 5     & 7     \\ \hline
+        \underline{dayid}       & year      & month & day   \\ \hline
+        1                       & 2007      & 1     & 5     \\ \hline
+        2                       & 2005      & 5     & 7     \\ \hline
     \end{tabular}
     \caption{Day dimension table.}
-    \label{fig:uml_eks2}
-
+    \label{fig:day_scheme}
+\vspace{0.5cm}
     \begin{tabular}{|l|l|l|l|}
         \hline
-        timeid      & hour      & minut     & second    \\ \hline
-        5           & 5         & 10        & 55        \\ \hline
-        9           & 9         & 45        & 8         \\ \hline
+        \underline{timeid}      & hour      & minute    & second    \\ \hline
+        5                       & 5         & 10        & 55        \\ \hline
+        9                       & 9         & 45        & 8         \\ \hline
     \end{tabular}
     \caption{Time dimension table.}
-    \label{fig:uml_eks2}
-
+    \label{fig:time_scheme}
+\vspace{0.5cm}
     \begin{tabular}{|l|l|l|l|l|}
         \hline
-        productid   & name              & price     & active    & deactivation\_date     \\ \hline
-        5           & $^1/_2$L Kærnemælk      & 225       & 0         &                       \\ \hline
-        40          & Frisk luft v. BSS & 1         & 8         & 2007-12-24 20:00:01    \\ \hline
+        \underline{productid}   & name                  & price     & active    & deactivation\_date    \\ \hline
+        5                       & $^1/_2$L Kærnemælk    & 225       & 0         &                       \\ \hline
+        40                      & Frisk luft v. BSS     & 100       & 1         & 2007-12-24 20:00:01   \\ \hline
     \end{tabular}
     \caption{Product dimension table.}
-    \label{fig:uml_eks2}
-
-    \begin{tabular}{|l|l|l|l|}
+    \label{fig:product_scheme}
+\vspace{0.5cm}
+    \begin{tabular}{|l|l|l|l|l|}
         \hline
-        memberid    & productid     & dayid     & timeid    \\ \hline
-        1061        & 5             & 1         & 5         \\ \hline
-        1060        & 40            & 2         & 9         \\ \hline
+        \underline{memberid}    & \underline{productid}     & \underline{dayid}     & \underline{timeid}    & sale  \\ \hline
+        1061                    & 5                         & 1                     & 5                     & 20    \\ \hline
+        1060                    & 40                        & 2                     & 9                     & 30    \\ \hline
     \end{tabular}
     \caption{Sale fact table.}
-    \label{fig:uml_eks2}
-
+    \label{fig:sale_scheme}
 \end{figure}
