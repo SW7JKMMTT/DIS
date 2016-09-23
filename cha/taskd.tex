@@ -1,0 +1,65 @@
+%!TEX root = ../main.tex
+\section{Task D}
+
+ETL Steps:
+
+\subsection{ETL plan}
+
+\tikzstyle{block} = [rectangle,
+    fill=smartdiagram1,
+    text width=5em,
+    text centered,
+    rounded corners,
+    minimum height=3em,
+]
+\tikzstyle{line} = [
+    draw
+]
+
+%Diagram
+\begin{figure}[ht]
+    \begin{tikzpicture}[node distance = 0.5cm, auto, transform shape]
+        % Place nodes
+        \node [block, align=center] (oltp-member) {fkluboltp \\ member};
+        \node [block, align=center, below=of oltp-member] (ext_id_memb) {Extract id};
+        \node [block, align=center, below=of ext_id_memb] (dw-member) {fklubdw \\ member};
+
+        \node [block, align=center, right=of oltp-member] (oltp-prod) {fkluboltp \\ product};
+        \node [block, align=center, below=of oltp-prod] (ext_id_prod) {Extract id \\ and name};
+        \node [block, align=center, below=of ext_id_prod] (dw-prod) {fklubdw product};
+
+        \node [block, align=center, right=3cm of oltp-prod] (oltp-sale) {fkluboltp sale};
+        \node [draw=none, below=1cm of oltp-sale] (ghost-1) {a};
+        \node [block, align=center, left=1cm of ghost-1] (ext_id_membid) {Extract id, \\ memberid and \\ productid};
+        \node [block, align=center, below=of ext_id_membid] (dw-sale) {fklubdw sale \\ (fact table)};
+
+        \node [block, align=center, right=1cm of ghost-1] (ext-timestmp) {Extract timestamp};
+        %\node [block, align=center, left=of ext_year_mnth] (dw-date) {fklubdw \\ date};
+
+        \node [draw=none, below=1cm of ext-timestmp] (ghost-2) {b};
+        \node [block, align=center, left=of ghost-2] (ext-year-mnth) {Extract year \\ month and \\ day};
+        \node [block, align=center, below=of ext-year-mnth] (dw-date) {fklubdw \\ date};
+
+        \node [block, align=center, right=of ghost-2] (ext-hour-min) {Extract hour \\ minutes and \\ seconds};
+        \node [block, align=center, below=of ext-hour-min] (dw-time) {fklubdw \\ time};
+
+
+        %\node [block, align=center, below=of ext_year_mnth] (dw-date) {fklubdw \\ date};
+
+
+
+        \path[line] (oltp-member) -- (ext_id_memb) -- (dw-member);
+        \path[line] (oltp-prod) -- (ext_id_prod) -- (dw-prod);
+        \path[line] (oltp-sale) -| (ext_id_membid) -- (dw-sale);
+        \path[line] (oltp-sale) -| (ext-timestmp);
+        \path[line] (ext-timestmp) -| (ext-year-mnth) -- (dw-date);
+        \path[line] (ext-timestmp) -| (ext-hour-min) -- (dw-time);
+
+    \end{tikzpicture}
+    \caption{ETL plan}
+\end{figure}
+
+
+\subsection{ETL tool}
+
+\subsection{Default strategies}
