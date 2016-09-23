@@ -4,6 +4,17 @@
 ETL Steps:
 
 \subsection{ETL plan}
+The main task is to extract the data from the the ``fkluboltp'' database and add it to the dimensions of the data warehouse.
+The ETL plan can be seen on \myref{fig:etl-plan}. 
+The boxes in \myref{fig:etl-plan} with which begin with ``fkluboltp'' means that the data is from the source database. 
+
+The goal is to get the data in the data warehouse, which is called ``fklubdw''. 
+In the ETL plan, the boxes represents the data warehouse is called the name of the data warehouse followed by the dimension name, e.g: ``fklubdw date''.
+It is not all data which is used, only what is deemed relevant to the business process.
+Exactly what is extracted from the source database can be seen in \myref{fig:etl-plan} in the ``Extract'' boxes. 
+
+A step, which is not displayed in \myref{fig:etl-plan} is the check of referential integrity.
+This step makes sure that the ``memberid'' and ``productid'' from sales exist in among the members and products. 
 
 \tikzstyle{block} = [rectangle,
     fill=smartdiagram1,
@@ -16,10 +27,8 @@ ETL Steps:
     draw
 ]
 
-%Diagram
-\begin{figure}[ht]
+\begin{figure}[H]
     \begin{tikzpicture}[node distance = 0.5cm, auto, transform shape]
-        % Place nodes
         \node [block, align=center] (oltp-member) {fkluboltp \\ member};
         \node [block, align=center, below=of oltp-member] (ext_id_memb) {Extract id};
         \node [block, align=center, below=of ext_id_memb] (dw-member) {fklubdw \\ member};
@@ -29,37 +38,38 @@ ETL Steps:
         \node [block, align=center, below=of ext_id_prod] (dw-prod) {fklubdw product};
 
         \node [block, align=center, right=3cm of oltp-prod] (oltp-sale) {fkluboltp sale};
-        \node [draw=none, below=1cm of oltp-sale] (ghost-1) {a};
+        \node [draw=none, below=1cm of oltp-sale] (ghost-1) {};
         \node [block, align=center, left=1cm of ghost-1] (ext_id_membid) {Extract id, \\ memberid and \\ productid};
-        \node [block, align=center, below=of ext_id_membid] (dw-sale) {fklubdw sale \\ (fact table)};
+        \node [block, align=center, below=of ext_id_membid] (agg_sales) {Aggregate sales};
+        \node [block, align=center, below=of agg_sales] (dw-sale) {fklubdw sale \\ (fact table)};
 
         \node [block, align=center, right=1cm of ghost-1] (ext-timestmp) {Extract timestamp};
-        %\node [block, align=center, left=of ext_year_mnth] (dw-date) {fklubdw \\ date};
 
-        \node [draw=none, below=1cm of ext-timestmp] (ghost-2) {b};
+        \node [draw=none, below=1cm of ext-timestmp] (ghost-2) {};
         \node [block, align=center, left=of ghost-2] (ext-year-mnth) {Extract year \\ month and \\ day};
         \node [block, align=center, below=of ext-year-mnth] (dw-date) {fklubdw \\ date};
 
         \node [block, align=center, right=of ghost-2] (ext-hour-min) {Extract hour \\ minutes and \\ seconds};
         \node [block, align=center, below=of ext-hour-min] (dw-time) {fklubdw \\ time};
 
-
-        %\node [block, align=center, below=of ext_year_mnth] (dw-date) {fklubdw \\ date};
-
-
-
-        \path[line] (oltp-member) -- (ext_id_memb) -- (dw-member);
-        \path[line] (oltp-prod) -- (ext_id_prod) -- (dw-prod);
-        \path[line] (oltp-sale) -| (ext_id_membid) -- (dw-sale);
-        \path[line] (oltp-sale) -| (ext-timestmp);
-        \path[line] (ext-timestmp) -| (ext-year-mnth) -- (dw-date);
-        \path[line] (ext-timestmp) -| (ext-hour-min) -- (dw-time);
-
+        \draw[->] (oltp-member) -- (ext_id_memb);
+        \draw[->] (ext_id_memb) -- (dw-member);
+        \draw[->] (oltp-prod) -- (ext_id_prod);
+        \draw[->] (ext_id_prod) -- (dw-prod);
+        \draw[->] (oltp-sale) -| (ext_id_membid);
+        \draw[->] (ext_id_membid) -- (agg_sales);
+        \draw[->] (agg_sales) -- (dw-sale);
+        \draw[->] (oltp-sale) -| (ext-timestmp);
+        \draw[->] (ext-timestmp) -| (ext-year-mnth);
+        \draw[->] (ext-year-mnth) -- (dw-date);
+        \draw[->] (ext-timestmp) -| (ext-hour-min);
+        \draw[->] (ext-hour-min) -- (dw-time);
     \end{tikzpicture}
-    \caption{ETL plan}
+    \caption{The ETL plan.}
+    \label{fig:etl-plan}
 \end{figure}
 
-
 \subsection{ETL tool}
+
 
 \subsection{Default strategies}
